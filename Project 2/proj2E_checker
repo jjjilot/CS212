@@ -1,0 +1,92 @@
+if [[ ! -f project2E.c ]] ; then
+   echo "Cannot find file project2E.c.  Run this script in the same directory as as project2E.c"
+   echo "FAILED"
+   exit 1
+fi
+if [[ ! -f 2E_binary_file ]] ; then
+   echo "Cannot find file 2E_binary_file.  Run this script in the same directory as as 2E_binary_file"
+   echo "FAILED"
+   exit 1
+fi
+gcc project2E.c
+if [[ $? != 0 ]] ; then
+   echo "Cannot compile program project2E.c.  Fix your compile problem."
+   echo "FAILED"
+   exit 1
+fi
+
+./a.out 2E_binary_file student.2E.$$
+if [[ $? != 0 ]] ; then
+   echo "The return value of your program was non-zero."
+   echo "FAILED"
+   exit 1
+fi
+
+if [[ ! -f student.2E.$$ ]] ; then
+   echo "I ran your program as ./a.out proj2E_binary_file student.2E.$$"
+   echo "And thus I expected it to create file student.2E.$$"
+   echo "But I cannot locate that file."
+   echo "FAILED"
+   exit 1
+fi
+
+X="0
+1
+1
+2
+3
+55
+89
+144
+233
+377
+6765
+10946
+17711
+28657
+46368
+832040
+1346269
+2178309
+3524578
+5702887
+102334155
+165580141
+267914296
+433494437
+701408733"
+
+printf "$X\n"> correct.2E.$$
+
+diff student.2E.$$ correct.2E.$$ > /dev/null
+if [[ $? == 0 ]] ; then
+   echo "The output of your program matched the correct output -- Success!!"
+   echo "Before you submit, make sure to check for good programming practices"
+   echo "(See prompt for more information)"
+   rm student.2E.$$ correct.2E.$$
+   exit 0
+fi
+
+lines_student=$(cat student.2E.$$ | wc -l)
+lines_correct=$(cat correct.2E.$$ | wc -l)
+if [[ $lines_student != $lines_correct ]] ; then
+    echo "The number of lines do not match: you have $lines_student and the correct version has $lines_correct"
+    exit 1
+fi
+
+cat student.2E.$$ | head -n 1 > student.short2E.$$
+cat correct.2E.$$ | head -n 1 > correct.short2E.$$
+diff student.short2E.$$ correct.short2E.$$ > /dev/null
+if [[ $? != 0 ]] ; then
+   echo "The first line of your program is: "
+   cat student.short2E.$$
+   echo "But the correct first line is: "
+   cat correct.short2E.$$
+   rm student.2E.$$ correct.2E.$$
+   rm student.short2E.$$ correct.short2E.$$
+   exit 1
+fi
+
+echo "The program does not produce the correct output.  You should use the \"diff\" command to learn more.  Your output is called student.2E and the correct output is called correct.2E.  So you should call: diff student.2E correct.2E"
+mv student.2E.$$ student.2E
+mv correct.2E.$$ correct.2E
